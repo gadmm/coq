@@ -112,7 +112,7 @@ let get_accu (k : accumulator) =
 let mk_rel_accu i =
   mk_accu (Arel i)
 
-let rel_tbl_size = 100
+let rel_tbl_size = 0
 let rel_tbl = Array.init rel_tbl_size mk_rel_accu
 
 let mk_rel_accu i =

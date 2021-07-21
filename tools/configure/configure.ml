@@ -261,8 +261,7 @@ let default = {
   bin_annot = false;
   annot = false;
   bytecodecompiler = true;
-  nativecompiler =
-    if os_type_win32 || os_type_cygwin then NativeNo else NativeOndemand;
+  nativecompiler = NativeNo;
   coqwebsite = "http://coq.inria.fr/";
   force_caml_version = false;
   force_findlib_version = false;
@@ -311,10 +310,8 @@ let get_ide = function
   | s -> raise (Arg.Bad ("(opt|byte|no) argument expected instead of "^s))
 
 let get_native = function
-  | "yes" -> NativeYes
   | "no" -> NativeNo
-  | "ondemand" -> NativeOndemand
-  | s -> raise (Arg.Bad ("(yes|no|ondemand) argument expected instead of "^s))
+  | s -> raise (Arg.Bad ("(no) argument expected instead of "^s))
 
 let arg_bool f = Arg.String (fun s -> prefs := f !prefs (get_bool s))
 
@@ -402,10 +399,9 @@ let args_options = Arg.align [
   "-bytecode-compiler", arg_bool (fun p bytecodecompiler -> { p with bytecodecompiler }),
     "(yes|no) Enable Coq's bytecode reduction machine (VM)";
   "-native-compiler", arg_native (fun p nativecompiler -> { p with nativecompiler }),
-    "(yes|no|ondemand) Compilation to native code for conversion and normalization
-     yes: -native-compiler option of coqc will default to 'yes', stdlib will be precompiled
+    "(no) Compilation to native code for conversion and normalization
      no: no native compilation available at all
-     ondemand (default): -native-compiler option of coqc will default to 'ondemand', stdlib will not be precompiled";
+ompiled";
   "-coqwebsite", arg_string (fun p coqwebsite -> { p with coqwebsite }),
     " URL of the coq website";
   "-force-caml-version", arg_set (fun p force_caml_version -> { p with force_caml_version }),
