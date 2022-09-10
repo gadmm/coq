@@ -89,8 +89,31 @@ let print_memory_stat () =
      https://github.com/OCamlPro/operf-macro *)
   try
     let fn = Sys.getenv "OCAML_GC_STATS" in
-    let oc = open_out fn in
+    let oc = open_out_gen [Open_wronly; Open_creat; Open_append; Open_text] 0o666 fn in
     Gc.print_stat oc;
+    let control : Gc.control = Gc.get () in
+    Printf.fprintf oc ("\n{minor_heap_size = %n;\n" ^^
+                       "major_heap_increment = %n;\n" ^^
+                       "space_overhead = %n;\n" ^^
+                       "verbose = %n;\n" ^^
+                       "max_overhead = %n;\n" ^^
+                       "stack_limit = %n;\n" ^^
+                       "allocation_policy = %n;\n" ^^
+                       "window_size = %n;\n" ^^
+                       "custom_major_ratio = %n;\n" ^^
+                       "custom_minor_ratio = %n;\n" ^^
+                       "custom_minor_max_size = %n}\n\n\n")
+      control.Gc.minor_heap_size
+      control.Gc.major_heap_increment
+      control.Gc.space_overhead
+      control.Gc.verbose
+      control.Gc.max_overhead
+      control.Gc.stack_limit
+      control.Gc.allocation_policy
+      control.Gc.window_size
+      control.Gc.custom_major_ratio
+      control.Gc.custom_minor_ratio
+      control.Gc.custom_minor_max_size ;
     close_out oc
   with _ -> ()
 
