@@ -917,7 +917,20 @@ let () =
   in
   CClosure.set_conv conv
 
+external install_arena : unit -> bool = "caml_install_arena"
+external remove_arena : unit -> unit = "caml_remove_arena"
+
+let run_with_arena f =
+  (* we are careful about polling points, and tail recursion *)
+  if install_arena () then
+    match f () with
+    | x -> remove_arena () ; x
+    | exception e -> remove_arena () ; raise e
+  else
+    f ()
+
 let gen_conv cv_pb ?(l2r=false) ?(reds=TransparentState.full) env ?(evars=default_evar_handler) t1 t2 =
+  run_with_arena @@ fun () ->
   let univs = Environ.universes env in
   let b =
     if cv_pb = CUMUL then leq_constr_univs univs t1 t2
@@ -932,6 +945,7 @@ let conv = gen_conv CONV
 let conv_leq = gen_conv CUMUL
 
 let generic_conv cv_pb ~l2r evars reds env univs t1 t2 =
+  run_with_arena @@ fun () ->
   let graph = Environ.universes env in
   let (s, _) =
     clos_gen_conv reds cv_pb l2r evars env graph univs t1 t2
